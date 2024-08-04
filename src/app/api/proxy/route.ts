@@ -1,25 +1,34 @@
 import { NextResponse } from 'next/server';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_KEY = process.env.API_KEY;
+
 export async function POST(request: Request) {
   const { prompt, model } = await request.json();
 
-  // TODO: Implement the actual API call to your backend here
-  // For now, we'll return a mock response
-  const mockResponse = {
-    response: `This is a mock response for the prompt: "${prompt}" using the ${model} model`,
-    model: model,
-    metrics: {
-      latency: Math.random() * 100 + 50,
-      memoryUsage: Math.random() * 5 + 1,
-      taskComplexity: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)],
-      modelUsage: {
-        full: Math.random(),
-        '8bit': Math.random(),
-        '4bit': Math.random(),
-      },
-      memorySavings: Math.random() * 50,
-    },
-  };
+  if (!API_URL) {
+    return NextResponse.json({ error: 'API URL is not configured' }, { status: 500 });
+  }
 
-  return NextResponse.json(mockResponse);
+  try {
+    const response = await fetch(`${API_URL}/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({ prompt, model }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Error calling backend API:', error);
+    return NextResponse.json({ error: 'Failed to process the request' }, { status: 500 });
+  }
 }

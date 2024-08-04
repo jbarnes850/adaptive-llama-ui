@@ -3,31 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+  --color-primary: #007aff;
+  --color-secondary: #5856d6;
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-danger: #ff3b30;
+  --color-gray-light: #f2f2f7;
+  --color-gray: #8e8e93;
+  --color-gray-dark: #1c1c1e;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply antialiased text-gray-900 bg-gray-50;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+h1, h2, h3, h4, h5, h6 {
+  @apply font-bold tracking-tight;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-md font-semibold text-white transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply bg-[var(--color-primary)] hover:bg-[color:var(--color-primary)]/90;
+}
+
+.btn-secondary {
+  @apply bg-[var(--color-secondary)] hover:bg-[color:var(--color-secondary)]/90;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200;
+}
+
+.input {
+  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700;
 }
