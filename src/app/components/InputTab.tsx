@@ -17,19 +17,25 @@ interface ComplexityResult {
 }
 
 const InputTab: React.FC = () => {
-  const { input, setInput, setApiResponse, setIsLoading } = useAppContext();
-  const [complexity, setComplexity] = useState<ComplexityResult>({
-    score: 0,
-    level: 'Low',
-    factors: { length: 0, uniqueWords: 0, averageWordLength: 0, specialCharacters: 0 },
-  });
+  const { 
+    input, 
+    setInput, 
+    setApiResponse, 
+    isLoading, 
+    setIsLoading, 
+    complexity, 
+    setComplexity,
+    updateCumulativeMetrics,
+    isComparisonMode,
+    setIsComparisonMode
+  } = useAppContext();
 
   const debouncedAnalyzeComplexity = useCallback(
     debounce((text: string) => {
       const result = analyzeComplexity(text);
       setComplexity(result);
     }, 300),
-    []
+    [setComplexity]
   );
 
   useEffect(() => {
@@ -44,10 +50,12 @@ const InputTab: React.FC = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+    setIsComparisonMode(true);
     setError(null);
     try {
       const response = await sendPrompt(input);
       setApiResponse(response);
+      updateCumulativeMetrics(response.metrics.latency);
     } catch (error) {
       console.error('Error sending prompt:', error);
       setError('An error occurred while sending the prompt. Please try again.');
@@ -105,11 +113,22 @@ const InputTab: React.FC = () => {
         </div>
       </div>
       <button
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className={`mt-4 px-4 py-2 rounded ${
+          isComparisonMode || isLoading
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-blue-500 hover:bg-blue-600 text-white'
+        }`}
         onClick={handleSubmit}
+        disabled={isComparisonMode || isLoading}
       >
-        Send Prompt
+        {isLoading ? 'Sending...' : isComparisonMode ? 'Disabled in Comparison Mode' : 'Send Prompt'}
       </button>
+      {isComparisonMode && (
+        <p className="mt-2 text-sm text-gray-600">
+          Individual prompt sending is disabled in Comparison Mode. Use the Comparison Mode controls to send prompts.
+        </p>
+      )}
+      {error && <p className="mt-2 text-red-500">{error}</p>}
     </div>
   );
 };
