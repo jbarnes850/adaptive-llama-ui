@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Pie } from 'react-chartjs-2';
