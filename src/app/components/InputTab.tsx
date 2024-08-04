@@ -5,17 +5,6 @@ import { analyzeComplexity } from '../lib/ComplexityAnalysis';
 import { useAppContext } from '../context/AppContext';
 import { sendPrompt } from '../lib/api';
 
-interface ComplexityResult {
-  score: number;
-  level: 'Low' | 'Medium' | 'High';
-  factors: {
-    length: number;
-    uniqueWords: number;
-    averageWordLength: number;
-    specialCharacters: number;
-  };
-}
-
 const InputTab: React.FC = () => {
   const { 
     input, 
@@ -30,12 +19,19 @@ const InputTab: React.FC = () => {
     setIsComparisonMode
   } = useAppContext();
 
+  const [error, setError] = useState<string | null>(null);
+
   const debouncedAnalyzeComplexity = useCallback(
     debounce((text: string) => {
-      const result = analyzeComplexity(text);
-      setComplexity(result);
+      try {
+        const result = analyzeComplexity(text);
+        setComplexity(result);
+      } catch (error) {
+        console.error('Error analyzing complexity:', error);
+        setError('An error occurred while analyzing input complexity.');
+      }
     }, 300),
-    [setComplexity]
+    [setComplexity, setError]
   );
 
   useEffect(() => {
@@ -44,11 +40,15 @@ const InputTab: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
+    setError(null); // Clear any previous errors when input changes
   };
 
-  const [error, setError] = useState<string | null>(null);
-
   const handleSubmit = async () => {
+    if (!input.trim()) {
+      setError('Please enter a prompt before submitting.');
+      return;
+    }
+
     setIsLoading(true);
     setIsComparisonMode(true);
     setError(null);
@@ -81,31 +81,31 @@ const InputTab: React.FC = () => {
     <div className="bg-gray-100 p-4 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Input</h2>
       <textarea
-        className="w-full h-32 p-2 border rounded"
+        className="w-full h-32 p-2 border rounded resize-y"
         value={input}
         onChange={handleInputChange}
         placeholder="Enter your prompt here..."
       />
-      <div className="mt-2">
-        <p>
-          Task Complexity:{' '}
-          <span className={`font-bold ${getComplexityColor(complexity.level)}`}>
+      <div className="mt-2 space-y-2">
+        <p className="flex items-center">
+          <span>Task Complexity: </span>
+          <span className={`font-bold ${getComplexityColor(complexity.level)} ml-1`}>
             {complexity.level}
           </span>
           <Tooltip content="Complexity is calculated based on input length, unique words, average word length, and special characters.">
             <span className="ml-1 cursor-help text-gray-500">ⓘ</span>
           </Tooltip>
         </p>
-        <div className="mt-2 bg-white p-2 rounded border">
+        <div className="bg-white p-2 rounded border">
           <h3 className="font-semibold mb-1">Complexity Factors:</h3>
-          <ul className="text-sm">
+          <ul className="text-sm space-y-1">
             <li>Input Length: {complexity.factors.length} characters</li>
             <li>Unique Words: {complexity.factors.uniqueWords}</li>
             <li>Avg. Word Length: {complexity.factors.averageWordLength.toFixed(2)} characters</li>
             <li>Special Characters: {complexity.factors.specialCharacters}</li>
           </ul>
         </div>
-        <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
           <div
             className="bg-blue-600 h-2.5 rounded-full"
             style={{ width: `${(complexity.score / 100) * 100}%` }}
@@ -113,7 +113,7 @@ const InputTab: React.FC = () => {
         </div>
       </div>
       <button
-        className={`mt-4 px-4 py-2 rounded ${
+        className={`mt-4 px-4 py-2 rounded w-full sm:w-auto ${
           isComparisonMode || isLoading
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -128,7 +128,7 @@ const InputTab: React.FC = () => {
           Individual prompt sending is disabled in Comparison Mode. Use the Comparison Mode controls to send prompts.
         </p>
       )}
-      {error && <p className="mt-2 text-red-500">{error}</p>}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 };
