@@ -19,12 +19,27 @@ export interface ApiResponse {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': process.env.API_KEY || '',
       },
       body: JSON.stringify({ prompt, model }),
     });
   
     if (!response.ok) {
       throw new Error('Failed to send prompt');
+    }
+  
+    return response.json();
+  }
+  
+  export async function getStats(): Promise<any> {
+    const response = await fetch('/api/proxy/stats', {
+      headers: {
+        'X-API-Key': process.env.API_KEY || '',
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to get stats');
     }
   
     return response.json();
