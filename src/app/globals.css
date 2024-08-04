@@ -26,11 +26,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  @apply bg-[var(--color-primary)] hover:bg-[color:var(--color-primary)]/90;
+  background-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
 }
 
 .btn-secondary {
-  @apply bg-[var(--color-secondary)] hover:bg-[color:var(--color-secondary)]/90;
+  background-color: var(--color-secondary);
+}
+
+.btn-secondary:hover {
+  background-color: color-mix(in srgb, var(--color-secondary) 90%, transparent);
 }
 
 .card {
