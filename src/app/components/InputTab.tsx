@@ -83,10 +83,10 @@ const InputTab: React.FC = () => {
     <div className="bg-gray-100 p-4 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Input</h2>
       <textarea
-        className="w-full h-32 p-2 border rounded resize-y"
+        className="w-full h-48 p-4 border rounded resize-y"
         value={input}
         onChange={handleInputChange}
-        placeholder="Enter your prompt here..."
+        placeholder="Enter your prompt here...(e.g., 'Explain the concept of quantum computing in simple terms')"
       />
       <div className="mt-2 space-y-2">
         <p className="flex items-center">
